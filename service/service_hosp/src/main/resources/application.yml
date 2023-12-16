@@ -1,0 +1,60 @@
+
+mybatis-plus:
+  mapper-locations: classpath:com/chai/yygh/mapper/xml/*.xml
+  global-config:
+    db-config:
+      logic-delete-field: isDeleted
+      logic-not-delete-value: 0
+      logic-delete-value: 1
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#服务端口
+server:
+  port: 8201
+spring:
+  #服务名称
+  application:
+    name: service-hosp
+    #环境设置
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+
+#    sentinel:
+#      transport:
+#        dashboard: http://127.0.0.1:8858
+
+#mongodb地址
+  data:
+    mongodb:
+      database: yygh_hosp
+#      host: 192.168.114.128
+      host: 127.0.0.1
+      port: 27017
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/yygh_hosp?characterEncoding=utf-8&useSSL=false
+    username: root
+    password: 123456
+  #返回json时间格式
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+logging:
+  level:
+    root: debug
+#rabbitmq地址
+#  rabbitmq:
+#    host: 127.0.0.1
+#    password: guest
+#    port: 5672
+#    username: guest
+
+#feign
+#feign:
+#  sentinel:
+
+#    enabled: true
