@@ -47,7 +47,10 @@ public class ApiController {
     private ScheduleService scheduleService;
 
     /**
-     * 保存医院信息
+     * 上传医院信息
+     *
+     * @param request 请求
+     * @return {@link Result}<{@link String}>
      */
     @PostMapping("/saveHospital")
     public Result<String> saveHospital(HttpServletRequest request) {
@@ -90,6 +93,13 @@ public class ApiController {
         }
 
     }
+
+    /**
+     * 上传科室
+     *
+     * @param request 请求
+     * @return {@link Result}
+     */
     @PostMapping("/saveDepartment")
     public Result saveDepartment(HttpServletRequest request){
         Map<String, String[]> parameterMap = request.getParameterMap();

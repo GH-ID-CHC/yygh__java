@@ -13,6 +13,12 @@ import java.util.Map;
  * @create: 2023-04-15 22:28
  **/
 public interface DepartmentService {
+    /**
+     * 获取科室信息
+     *
+     * @param switchMap
+     * @return {@link Page}<{@link Department}>
+     */
     Page<Department> getDepartmentByCode(Map<String, Object> switchMap);
 
     void save(Map<String, Object> switchMap);
