@@ -115,19 +115,23 @@ public class ApiController {
         departmentService.save(switchMap);
         return Result.ok("添加成功");
     }
+
     /**
      * 查询科室接口
-     * */
+     *
+     * @param request 请求
+     * @return {@link Result}<{@link Page}<{@link Department}>>
+     */
     @PostMapping("/department/list")
     public Result<Page<Department>> showDepartment(HttpServletRequest request){
         Map<String, String[]> parameterMap = request.getParameterMap();
         Map<String, Object> switchMap = HttpRequestHelper.switchMap(parameterMap);
-        String sign = (String) switchMap.get("sign");
         String hoscode = (String) switchMap.get("hoscode");
         HospitalSet hospitalSet = hospitalSetService.getSignByHoscode(hoscode);
         String signKey = hospitalSet.getSignKey();
-        signKey = MD5.encrypt(signKey);
-        if (!sign.equals(signKey)){
+
+        //签名的校验：不是单纯的md5加密
+        if(!HttpRequestHelper.isSignEquals(switchMap, signKey)) {
             throw new YyghException(ResultCodeEnum.SIGN_ERROR);
         }
 
