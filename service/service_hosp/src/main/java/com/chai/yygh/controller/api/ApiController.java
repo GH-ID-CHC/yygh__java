@@ -163,12 +163,10 @@ public class ApiController {
     public Result saveSchedule(HttpServletRequest request){
         Map<String, String[]> parameterMap = request.getParameterMap();
         Map<String, Object> switchMap = HttpRequestHelper.switchMap(parameterMap);
-        String sign = (String) switchMap.get("sign");
         String hoscode = (String) switchMap.get("hoscode");
         HospitalSet hospitalSet = hospitalSetService.getSignByHoscode(hoscode);
         String signKey = hospitalSet.getSignKey();
-        signKey = MD5.encrypt(signKey);
-        if (!sign.equals(signKey)){
+        if(!HttpRequestHelper.isSignEquals(switchMap, signKey)) {
             throw new YyghException(ResultCodeEnum.SIGN_ERROR);
         }
         scheduleService.save(switchMap);
@@ -181,12 +179,10 @@ public class ApiController {
     public Result list(HttpServletRequest request){
         Map<String, String[]> parameterMap = request.getParameterMap();
         Map<String, Object> switchMap = HttpRequestHelper.switchMap(parameterMap);
-        String sign = (String) switchMap.get("sign");
         String hoscode = (String) switchMap.get("hoscode");
         HospitalSet hospitalSet = hospitalSetService.getSignByHoscode(hoscode);
         String signKey = hospitalSet.getSignKey();
-        signKey = MD5.encrypt(signKey);
-        if (!sign.equals(signKey)){
+        if(!HttpRequestHelper.isSignEquals(switchMap, signKey)) {
             throw new YyghException(ResultCodeEnum.SIGN_ERROR);
         }
         Page<Schedule> schedulePage=scheduleService.page(switchMap);
@@ -199,13 +195,11 @@ public class ApiController {
     public Result removeSchedule(HttpServletRequest request){
         Map<String, String[]> parameterMap = request.getParameterMap();
         Map<String, Object> switchMap = HttpRequestHelper.switchMap(parameterMap);
-        String sign = (String) switchMap.get("sign");
         String hoscode = (String) switchMap.get("hoscode");
         String hosScheduleId = (String) switchMap.get("hosScheduleId");
         HospitalSet hospitalSet = hospitalSetService.getSignByHoscode(hoscode);
         String signKey = hospitalSet.getSignKey();
-        signKey = MD5.encrypt(signKey);
-        if (!sign.equals(signKey)){
+        if(!HttpRequestHelper.isSignEquals(switchMap, signKey)) {
             throw new YyghException(ResultCodeEnum.SIGN_ERROR);
         }
         scheduleService.remove(hoscode,hosScheduleId);
