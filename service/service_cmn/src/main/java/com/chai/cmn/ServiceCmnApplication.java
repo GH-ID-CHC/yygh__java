@@ -17,7 +17,7 @@ public class ServiceCmnApplication {
     public static void main(String[] args) {
         SpringApplication.run(ServiceCmnApplication.class, args);
         System.out.println("=======================================");
-        System.out.println("http://localhost:8201/swagger-ui.html");
+        System.out.println("http://localhost:8202/swagger-ui.html");
         System.out.println("=======================================");
     }
 }

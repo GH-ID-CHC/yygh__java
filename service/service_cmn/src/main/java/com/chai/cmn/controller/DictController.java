@@ -49,6 +49,10 @@ public class DictController {
 
     /**
      * 根据上级编码与值获取数据字典名称
+     *
+     * @param parentDictCode dict表中的dict_code
+     * @param value          dict表中的value值
+     * @return {@link String}
      */
     @ApiOperation("获取数据字典的名称")
     @GetMapping("/getName/{parentDictCode}/{value}")

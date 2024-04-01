@@ -26,7 +26,12 @@ public class HospitalController {
     private HospitalService hospitalService;
 
     /**
-     * 医院管理的列表查询
+     * 医院管理的所有医院的列表数据
+     *
+     * @param page            当前页
+     * @param limit           记录数
+     * @param hospitalQueryVo 医院查询vo
+     * @return {@link Result}<{@link Page}<{@link Hospital}>>
      */
     @ApiOperation(value = "获取分页列表")
     @GetMapping("/list/{page}/{limit}")
