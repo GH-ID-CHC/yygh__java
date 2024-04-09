@@ -23,4 +23,12 @@ public interface HospitalService {
      * @return {@code Hospital}
      */
     Hospital getInfo(String id);
+
+    /**
+     * 获取医院的名称
+     *
+     * @param hoscode 医院编号
+     * @return {@link String}
+     */
+    String getHospName(String hoscode);
 }

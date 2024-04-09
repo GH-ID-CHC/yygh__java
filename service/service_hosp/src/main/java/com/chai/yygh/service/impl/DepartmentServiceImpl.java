@@ -130,8 +130,9 @@ public class DepartmentServiceImpl implements DepartmentService {
             }
             //科室的名称
             //下级菜单
+        } else {
+            log.error("医院编号不能为空");
         }
-        log.error("医院编号错误");
         return departmentVos;
     }
 }

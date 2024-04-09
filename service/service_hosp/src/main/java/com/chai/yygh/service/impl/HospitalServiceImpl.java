@@ -121,6 +121,15 @@ public class HospitalServiceImpl implements HospitalService {
         return null;
     }
 
+    @Override
+    public String getHospName(String hoscode) {
+        Hospital hospital = hospitalRepository.getHospitalByHoscode(hoscode);
+        if(null != hospital) {
+            return hospital.getHosname();
+        }
+        return "";
+    }
+
     /**
      * 场景：根据医院的信息查询医院的等级
      * 重点：跨模块查询，使用feign。将调用service_cmn接口中提供的方法

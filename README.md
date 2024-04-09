@@ -1,6 +1,6 @@
 # 医院上传接口
 
-![医院长传流程](C:/Users/柴和程/Desktop/医院长传流程.png)
+![医院长传流程](images/医院长传流程.png)
 
 # nacos
 
