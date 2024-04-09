@@ -128,11 +128,18 @@ public class DepartmentServiceImpl implements DepartmentService {
                 departmentVo.setChildren(departmentVoList);
                 departmentVos.add(departmentVo);
             }
-            //科室的名称
-            //下级菜单
         } else {
             log.error("医院编号不能为空");
         }
         return departmentVos;
+    }
+
+    @Override
+    public String getDepName(String hoscode, String depcode) {
+        Department department = departmentRepository.getDepartmentByHoscodeAndDepcode(hoscode, depcode);
+        if(department != null) {
+            return department.getDepname();
+        }
+        return null;
     }
 }

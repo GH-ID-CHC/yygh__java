@@ -32,4 +32,13 @@ public interface DepartmentService {
      * @return {@code List<HospitalSet>}
      */
     List<DepartmentVo> getDepList(String hoscode);
+
+    /**
+     * 获取科室名称
+     *
+     * @param hoscode hoscode
+     * @param depcode depcode
+     * @return {@link Object}
+     */
+    String getDepName(String hoscode, String depcode);
 }

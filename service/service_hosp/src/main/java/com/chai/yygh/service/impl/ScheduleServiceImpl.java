@@ -3,6 +3,7 @@ package com.chai.yygh.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.chai.yygh.model.hosp.Schedule;
 import com.chai.yygh.repository.ScheduleRepository;
+import com.chai.yygh.service.DepartmentService;
 import com.chai.yygh.service.HospitalService;
 import com.chai.yygh.service.ScheduleService;
 import com.chai.yygh.vo.hosp.BookingScheduleRuleVo;
@@ -36,6 +37,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Autowired
     private HospitalService hospitalService;
+
+    @Autowired
+    private DepartmentService departmentService;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -150,6 +154,27 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         return result;
     }
+
+    @Override
+    public List<Schedule> getDetailSchedule(String hoscode, String depcode, String workDate) {
+        //根据参数查询mongodb
+        List<Schedule> scheduleList =
+                scheduleRepository.findScheduleByHoscodeAndDepcodeAndWorkDate(hoscode,depcode,new DateTime(workDate).toDate());
+        //把得到list集合遍历，向设置其他值：医院名称、科室名称、日期对应星期
+        scheduleList.stream().forEach(item->{
+            this.packageSchedule(item);
+        });
+        return scheduleList;
+    }
+
+    private void packageSchedule(Schedule schedule) {
+        schedule.getParam().put("hosname",hospitalService.getHospName(schedule.getHoscode()));
+        //设置科室名称
+        schedule.getParam().put("depname",departmentService.getDepName(schedule.getHoscode(),schedule.getDepcode()));
+        //设置日期对应星期
+        schedule.getParam().put("dayOfWeek",this.getDayOfWeek(new DateTime(schedule.getWorkDate())));
+    }
+
     /**
      * 根据日期获取周几数据
      * @param dateTime

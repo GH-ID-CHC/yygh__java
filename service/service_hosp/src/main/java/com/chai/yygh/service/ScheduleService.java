@@ -3,6 +3,7 @@ package com.chai.yygh.service;
 import com.chai.yygh.model.hosp.Schedule;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ScheduleService {
@@ -22,4 +23,14 @@ public interface ScheduleService {
      * @return {@link Map}<{@link String},{@link Object}>
      */
     Map<String,Object> getRuleSchedule(long page, long limit, String hoscode, String depcode);
+
+    /**
+     * 获取排班详细时间表
+     *
+     * @param hoscode  hoscode
+     * @param depcode  depcode
+     * @param workDate 工作日期
+     * @return {@link List}<{@link Schedule}>
+     */
+    List<Schedule> getDetailSchedule(String hoscode, String depcode, String workDate);
 }
