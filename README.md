@@ -49,3 +49,5 @@ public class CorsConfig {
 ```
 
 > 需要再次去除`@CrossOrigin`注解
+
+![image-20240410214615332](images/image-20240410214615332.png)
