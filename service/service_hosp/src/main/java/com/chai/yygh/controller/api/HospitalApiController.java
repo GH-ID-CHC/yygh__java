@@ -2,6 +2,7 @@ package com.chai.yygh.controller.api;
 
 import com.chai.yygh.common.result.Result;
 import com.chai.yygh.model.hosp.Hospital;
+import com.chai.yygh.service.DepartmentService;
 import com.chai.yygh.service.HospitalService;
 import com.chai.yygh.vo.hosp.HospitalQueryVo;
 import io.swagger.annotations.Api;
@@ -27,6 +28,9 @@ public class HospitalApiController {
     @Autowired
     private HospitalService hospitalService;
 
+    @Autowired
+    private DepartmentService departmentService;
+
     @ApiOperation(value = "获取分页列表")
     @GetMapping("{page}/{limit}")
     public Result index(
@@ -45,5 +49,21 @@ public class HospitalApiController {
             @ApiParam(name = "hosname", value = "医院名称", required = true)
             @PathVariable String hosname) {
         return Result.ok(hospitalService.findByHosname(hosname));
+    }
+
+    @ApiOperation(value = "获取科室列表")
+    @GetMapping("department/{hoscode}")
+    public Result index(
+            @ApiParam(name = "hoscode", value = "医院code", required = true)
+            @PathVariable String hoscode) {
+        return Result.ok(departmentService.getDepList(hoscode));
+    }
+
+    @ApiOperation(value = "医院预约挂号详情")
+    @GetMapping("{hoscode}")
+    public Result item(
+            @ApiParam(name = "hoscode", value = "医院code", required = true)
+            @PathVariable String hoscode) {
+        return Result.ok(hospitalService.item(hoscode));
     }
 }

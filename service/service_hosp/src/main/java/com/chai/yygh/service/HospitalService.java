@@ -40,4 +40,6 @@ public interface HospitalService {
      * @return {@link List}<{@link Hospital}>
      */
     List<Hospital> findByHosname(String hosname);
+
+    Map<String, Object> item(String hoscode);
 }
