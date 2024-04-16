@@ -3,6 +3,7 @@ package com.chai.yygh.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chai.yygh.common.exception.YyghException;
+import com.chai.yygh.common.helper.JwtHelper;
 import com.chai.yygh.common.result.ResultCodeEnum;
 import com.chai.yygh.model.acl.User;
 import com.chai.yygh.model.user.UserInfo;
@@ -32,7 +33,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     public Map<String, Object> login(LoginVo loginVo) {
         String code = loginVo.getCode();
         String phone = loginVo.getPhone();
-        if (StringUtils.isEmpty(phone) || phone==null){
+        if (StringUtils.isEmpty(phone) || phone == null) {
             throw new YyghException(ResultCodeEnum.PERMISSION);
         }
 
@@ -40,11 +41,11 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
         //判断是否是第一次登录
         QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq("phone",phone);
+        wrapper.eq("phone", phone);
         UserInfo userInfo = baseMapper.selectOne(wrapper);
-        if (userInfo==null){
+        if (userInfo == null) {
 //            第一次登录
-            userInfo=new UserInfo();
+            userInfo = new UserInfo();
             userInfo.setName("");
             userInfo.setPhone(phone);
             userInfo.setStatus(1);
@@ -52,21 +53,24 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         }
 
         //校验用户是否被禁用
-        if (userInfo.getAuthStatus()==0){
+        if (userInfo.getStatus() == 0) {
             throw new YyghException(ResultCodeEnum.LOGIN_ACL);
         }
 
         //返回页面显示名称
         Map<String, Object> map = new HashMap<>();
         String name = userInfo.getName();
-        if(StringUtils.isEmpty(name)) {
+        if (StringUtils.isEmpty(name)) {
             name = userInfo.getNickName();
         }
-        if(StringUtils.isEmpty(name)) {
+        if (StringUtils.isEmpty(name)) {
             name = userInfo.getPhone();
         }
         map.put("name", name);
-        map.put("token", "");
+
+        //生成token
+        String token = JwtHelper.createToken(userInfo.getId(), name);
+        map.put("token", token);
         return map;
     }
 }

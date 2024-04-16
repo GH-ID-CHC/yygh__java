@@ -73,3 +73,82 @@ JWT的原理，
 一个JWT由三个部分组成：公共部分、私有部分、签名部分。最后由这三者组合进行base64编码得到JWT。
 
 ![image-20240416223357960](images/image-20240416223357960.png)
+
+1. 添加依赖
+
+   ```xml
+   <dependency>
+       <groupId>io.jsonwebtoken</groupId>
+       <artifactId>jjwt</artifactId>
+   </dependency>
+   ```
+
+2. 添加工具类
+
+```java
+public class JwtHelper {
+    /** 令牌过期时间 */
+    private static long tokenExpiration = 24*60*60*1000;
+    /** 令牌签名密钥 */
+    private static String tokenSignKey = "123456";
+
+    /**
+     * 根据参数生成token
+     *
+     * @param userId   用户id
+     * @param userName 用户名
+     * @return {@link String}
+     */
+    public static String createToken(Long userId, String userName) {
+        String token = Jwts.builder()
+                .setSubject("YYGH-USER")
+                .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
+                .claim("userId", userId)
+                .claim("userName", userName)
+                .signWith(SignatureAlgorithm.HS512, tokenSignKey)
+                .compressWith(CompressionCodecs.GZIP)
+                .compact();
+        return token;
+    }
+
+    /**
+     * 根据token获取用户的id
+     *
+     * @param token 令牌
+     * @return {@link Long}
+     */
+    public static Long getUserId(String token) {
+        if(StringUtils.isEmpty(token)) return null;
+        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(tokenSignKey).parseClaimsJws(token);
+        Claims claims = claimsJws.getBody();
+        Integer userId = (Integer)claims.get("userId");
+        return userId.longValue();
+    }
+
+    /**
+     * 获取用户名称
+     *
+     * @param token 令牌
+     * @return {@link String}
+     */
+    public static String getUserName(String token) {
+        if(StringUtils.isEmpty(token)) return "";
+        Jws<Claims> claimsJws
+                = Jwts.parser().setSigningKey(tokenSignKey).parseClaimsJws(token);
+        Claims claims = claimsJws.getBody();
+        return (String)claims.get("userName");
+    }
+    public static void main(String[] args) {
+        String token = JwtHelper.createToken(1L, "55");
+        System.out.println(token);
+        System.out.println(JwtHelper.getUserId(token));
+        System.out.println(JwtHelper.getUserName(token));
+    }
+}
+```
+
+3. 生成token
+
+   ```java
+   String token = JwtHelper.createToken(userInfo.getId(), name);
+   ```
