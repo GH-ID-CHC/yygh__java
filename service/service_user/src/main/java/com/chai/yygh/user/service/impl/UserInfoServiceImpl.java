@@ -16,6 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.management.Query;
+import javax.xml.ws.spi.WebServiceFeatureAnnotation;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Autowired
     private UserInfoMapper userInfoMapper;
 
+    @Autowired
     private RedisTemplate<String,String> redisTemplate;
 
     @Override
