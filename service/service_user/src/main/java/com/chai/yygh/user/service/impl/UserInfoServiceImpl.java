@@ -12,6 +12,7 @@ import com.chai.yygh.user.service.UserInfoService;
 import com.chai.yygh.vo.user.LoginVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.management.Query;
@@ -29,6 +30,8 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Autowired
     private UserInfoMapper userInfoMapper;
 
+    private RedisTemplate<String,String> redisTemplate;
+
     @Override
     public Map<String, Object> login(LoginVo loginVo) {
         String code = loginVo.getCode();
@@ -37,7 +40,11 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             throw new YyghException(ResultCodeEnum.PERMISSION);
         }
 
-        //判断手机号和输入的验证码是否一致
+        //校验校验验证码
+        String mobleCode = redisTemplate.opsForValue().get(phone);
+        if(!code.equals(mobleCode)) {
+            throw new YyghException(ResultCodeEnum.CODE_ERROR);
+        }
 
         //判断是否是第一次登录
         QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();
