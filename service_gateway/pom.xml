@@ -19,7 +19,7 @@
     <dependencies>
         <dependency>
             <groupId>com.chai</groupId>
-            <artifactId>common-util</artifactId>
+            <artifactId>service-util</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
