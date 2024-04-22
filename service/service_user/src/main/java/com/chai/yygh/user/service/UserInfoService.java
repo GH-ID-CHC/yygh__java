@@ -15,4 +15,13 @@ public interface UserInfoService extends IService<UserInfo> {
      * @return {@link Map}<{@link String}, {@link Object}>
      */
     Map<String, Object> login(LoginVo loginVo);
+
+    /**
+     * 根据微信openid获取用户信息
+     *
+     * @param openId 开放id
+     * @return {@link UserInfo}
+     */
+    UserInfo getByOpenid(String openId);
+
 }
