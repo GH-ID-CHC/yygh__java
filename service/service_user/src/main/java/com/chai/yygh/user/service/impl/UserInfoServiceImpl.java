@@ -48,18 +48,32 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             throw new YyghException(ResultCodeEnum.CODE_ERROR);
         }
 
-        //判断是否是第一次登录
-        QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq("phone", phone);
-        UserInfo userInfo = baseMapper.selectOne(wrapper);
-        if (userInfo == null) {
-//            第一次登录
-            userInfo = new UserInfo();
-            userInfo.setName("");
-            userInfo.setPhone(phone);
-            userInfo.setStatus(1);
-            baseMapper.insert(userInfo);
+        //绑定手机号码
+        UserInfo userInfo = null;
+        if(!StringUtils.isEmpty(loginVo.getOpenid())) {
+            userInfo = this.getByOpenid(loginVo.getOpenid());
+            if(null != userInfo) {
+                userInfo.setPhone(loginVo.getPhone());
+                this.updateById(userInfo);
+            } else {
+                throw new YyghException(ResultCodeEnum.DATA_ERROR);
+            }
         }
+        if(null == userInfo) {
+            //判断是否是第一次登录
+            QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();
+            wrapper.eq("phone", phone);
+            userInfo = baseMapper.selectOne(wrapper);
+            if (userInfo == null) {
+//            第一次登录
+                userInfo = new UserInfo();
+                userInfo.setName("");
+                userInfo.setPhone(phone);
+                userInfo.setStatus(1);
+                baseMapper.insert(userInfo);
+            }
+        }
+
 
         //校验用户是否被禁用
         if (userInfo.getStatus() == 0) {
