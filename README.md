@@ -298,8 +298,322 @@ public class RandomUtil {
 ## 用户权限认证
 
 1. 所有请求都会经过服务网关，服务网关对外暴露服务，在网关进行统一用户认证；
-
 2. 既然要在网关进行用户认证，网关得知道对哪些url进行认证，所以我们得对ur制定规则
-
 3. Api接口异步请求的，我们采取url规则匹配，如：/api/**/auth/**，如凡是满足该规则的都必须用户认证
 
+
+
+> 使用过滤器进行实现，非法操作进行过滤
+
+## OAuth2
+
+1. 开放系统之间的授权问题
+
+   ![image-20240420145252966](images/image-20240420145252966.png)
+
+   > 使用令牌的方式进行解决
+
+2. 单点登录
+
+如：登录百度贴吧，访问百度其它账号则 不需要再次登录百度账号
+
+![image-20240420150233333](images/image-20240420150233333.png)
+
+## 微信登录
+
+![image-20240420150527316](images/image-20240420150527316.png)
+
+![img](images/D0wkkHSbtC6VUSHX4WsjP5ssg5mdnEmXO8NGVGF34dxS9N1WCcq6wvquR4K_Hcut.png)
+
+1. 生成二维码
+
+![image-20240420161621308](images/image-20240420161621308.png)
+
+https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html
+
+## httpclient
+
+![image-20240422213352579](images/image-20240422213352579.png)
+
+> 拼接请求地址
+
+```java
+public class HttpClientUtils {
+
+    public static final int connTimeout=10000;
+    public static final int readTimeout=10000;
+    public static final String charset="UTF-8";
+    private static HttpClient client = null;
+
+    static {
+        PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+        cm.setMaxTotal(128);
+        cm.setDefaultMaxPerRoute(128);
+        client = HttpClients.custom().setConnectionManager(cm).build();
+    }
+
+    public static String postParameters(String url, String parameterStr) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+        return post(url,parameterStr,"application/x-www-form-urlencoded",charset,connTimeout,readTimeout);
+    }
+
+    public static String postParameters(String url, String parameterStr,String charset, Integer connTimeout, Integer readTimeout) throws ConnectTimeoutException, SocketTimeoutException, Exception{
+        return post(url,parameterStr,"application/x-www-form-urlencoded",charset,connTimeout,readTimeout);
+    }
+
+    public static String postParameters(String url, Map<String, String> params) throws ConnectTimeoutException,
+            SocketTimeoutException, Exception {
+        return postForm(url, params, null, connTimeout, readTimeout);
+    }
+
+    public static String postParameters(String url, Map<String, String> params, Integer connTimeout, Integer readTimeout) throws ConnectTimeoutException,
+            SocketTimeoutException, Exception {
+        return postForm(url, params, null, connTimeout, readTimeout);
+    }
+
+    public static String get(String url) throws Exception {
+        return get(url, charset, null, null);
+    }
+
+    public static String get(String url, String charset) throws Exception {
+        return get(url, charset, connTimeout, readTimeout);
+    }
+
+    /**
+     * 发送一个 Post 请求, 使用指定的字符集编码.
+     *
+     * @param url
+     * @param body RequestBody
+     * @param mimeType 例如 application/xml "application/x-www-form-urlencoded" a=1&b=2&c=3
+     * @param charset 编码
+     * @param connTimeout 建立链接超时时间,毫秒.
+     * @param readTimeout 响应超时时间,毫秒.
+     * @return ResponseBody, 使用指定的字符集编码.
+     * @throws ConnectTimeoutException 建立链接超时异常
+     * @throws SocketTimeoutException  响应超时
+     * @throws Exception
+     */
+    public static String post(String url, String body, String mimeType,String charset, Integer connTimeout, Integer readTimeout)
+            throws ConnectTimeoutException, SocketTimeoutException, Exception {
+        HttpClient client = null;
+        HttpPost post = new HttpPost(url);
+        String result = "";
+        try {
+            if (StringUtils.isNotBlank(body)) {
+                HttpEntity entity = new StringEntity(body, ContentType.create(mimeType, charset));
+                post.setEntity(entity);
+            }
+            // 设置参数
+            RequestConfig.Builder customReqConf = RequestConfig.custom();
+            if (connTimeout != null) {
+                customReqConf.setConnectTimeout(connTimeout);
+            }
+            if (readTimeout != null) {
+                customReqConf.setSocketTimeout(readTimeout);
+            }
+            post.setConfig(customReqConf.build());
+
+            HttpResponse res;
+            if (url.startsWith("https")) {
+                // 执行 Https 请求.
+                client = createSSLInsecureClient();
+                res = client.execute(post);
+            } else {
+                // 执行 Http 请求.
+                client = HttpClientUtils.client;
+                res = client.execute(post);
+            }
+            result = IOUtils.toString(res.getEntity().getContent(), charset);
+        } finally {
+            post.releaseConnection();
+            if (url.startsWith("https") && client != null&& client instanceof CloseableHttpClient) {
+                ((CloseableHttpClient) client).close();
+            }
+        }
+        return result;
+    }
+
+
+    /**
+     * 提交form表单
+     *
+     * @param url
+     * @param params
+     * @param connTimeout
+     * @param readTimeout
+     * @return
+     * @throws ConnectTimeoutException
+     * @throws SocketTimeoutException
+     * @throws Exception
+     */
+    public static String postForm(String url, Map<String, String> params, Map<String, String> headers, Integer connTimeout, Integer readTimeout) throws ConnectTimeoutException,
+            SocketTimeoutException, Exception {
+
+        HttpClient client = null;
+        HttpPost post = new HttpPost(url);
+        try {
+            if (params != null && !params.isEmpty()) {
+                List<NameValuePair> formParams = new ArrayList<NameValuePair>();
+                Set<Map.Entry<String, String>> entrySet = params.entrySet();
+                for (Map.Entry<String, String> entry : entrySet) {
+                    formParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+                }
+                UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formParams, Consts.UTF_8);
+                post.setEntity(entity);
+            }
+
+            if (headers != null && !headers.isEmpty()) {
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    post.addHeader(entry.getKey(), entry.getValue());
+                }
+            }
+            // 设置参数
+            RequestConfig.Builder customReqConf = RequestConfig.custom();
+            if (connTimeout != null) {
+                customReqConf.setConnectTimeout(connTimeout);
+            }
+            if (readTimeout != null) {
+                customReqConf.setSocketTimeout(readTimeout);
+            }
+            post.setConfig(customReqConf.build());
+            HttpResponse res = null;
+            if (url.startsWith("https")) {
+                // 执行 Https 请求.
+                client = createSSLInsecureClient();
+                res = client.execute(post);
+            } else {
+                // 执行 Http 请求.
+                client = HttpClientUtils.client;
+                res = client.execute(post);
+            }
+            return IOUtils.toString(res.getEntity().getContent(), "UTF-8");
+        } finally {
+            post.releaseConnection();
+            if (url.startsWith("https") && client != null
+                    && client instanceof CloseableHttpClient) {
+                ((CloseableHttpClient) client).close();
+            }
+        }
+    }
+
+    /**
+     * 发送一个 GET 请求
+     */
+    public static String get(String url, String charset, Integer connTimeout,Integer readTimeout)
+            throws ConnectTimeoutException,SocketTimeoutException, Exception {
+
+        HttpClient client = null;
+        HttpGet get = new HttpGet(url);
+        String result = "";
+        try {
+            // 设置参数
+            RequestConfig.Builder customReqConf = RequestConfig.custom();
+            if (connTimeout != null) {
+                customReqConf.setConnectTimeout(connTimeout);
+            }
+            if (readTimeout != null) {
+                customReqConf.setSocketTimeout(readTimeout);
+            }
+            get.setConfig(customReqConf.build());
+
+            HttpResponse res = null;
+
+            if (url.startsWith("https")) {
+                // 执行 Https 请求.
+                client = createSSLInsecureClient();
+                res = client.execute(get);
+            } else {
+                // 执行 Http 请求.
+                client = HttpClientUtils.client;
+                res = client.execute(get);
+            }
+
+            result = IOUtils.toString(res.getEntity().getContent(), charset);
+        } finally {
+            get.releaseConnection();
+            if (url.startsWith("https") && client != null && client instanceof CloseableHttpClient) {
+                ((CloseableHttpClient) client).close();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 从 response 里获取 charset
+     */
+    @SuppressWarnings("unused")
+    private static String getCharsetFromResponse(HttpResponse ressponse) {
+        // Content-Type:text/html; charset=GBK
+        if (ressponse.getEntity() != null  && ressponse.getEntity().getContentType() != null && ressponse.getEntity().getContentType().getValue() != null) {
+            String contentType = ressponse.getEntity().getContentType().getValue();
+            if (contentType.contains("charset=")) {
+                return contentType.substring(contentType.indexOf("charset=") + 8);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 创建 SSL连接
+     * @return
+     * @throws GeneralSecurityException
+     */
+    private static CloseableHttpClient createSSLInsecureClient() throws GeneralSecurityException {
+        try {
+            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                public boolean isTrusted(X509Certificate[] chain,String authType) throws CertificateException {
+                    return true;
+                }
+            }).build();
+
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, new X509HostnameVerifier() {
+
+                @Override
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+
+                @Override
+                public void verify(String host, SSLSocket ssl)
+                        throws IOException {
+                }
+
+                @Override
+                public void verify(String host, X509Certificate cert)
+                        throws SSLException {
+                }
+
+                @Override
+                public void verify(String host, String[] cns,
+                                   String[] subjectAlts) throws SSLException {
+                }
+            });
+            return HttpClients.custom().setSSLSocketFactory(sslsf).build();
+
+        } catch (GeneralSecurityException e) {
+            throw e;
+        }
+    }
+}
+```
+
+> httpclient工具类
+
+![image-20240422213458306](images/image-20240422213458306.png)
+
+## 阿里OSS服务
+
+文件服务系统
+
+用户认证需要上传证件图片、首页轮播也需要上传图片，因此我们要做文件服务，阿里云oss是一个很好的分布式文件服务系统，所以我们需要集成阿里云oss即可
+
+![image-20240422222004728](images/image-20240422222004728.png)
+
+1. 开通服务
+
+2. 创建bucket列表
+
+   ![image-20240422222530369](images/image-20240422222530369.png)
+
+   ![image-20240422222801779](images/image-20240422222801779.png)
+
+3. 
