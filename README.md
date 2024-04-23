@@ -610,10 +610,16 @@ public class HttpClientUtils {
 
 1. 开通服务
 
-2. 创建bucket列表
+2. 创建bucket列表（窗口）
 
    ![image-20240422222530369](images/image-20240422222530369.png)
 
    ![image-20240422222801779](images/image-20240422222801779.png)
 
-3. 
+   代码创建
+
+   ![image-20240423213619711](images/image-20240423213619711.png)
+
+   
+
+3. ![image-20240423214804225](images/image-20240423214804225.png)
