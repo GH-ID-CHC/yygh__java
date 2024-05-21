@@ -623,3 +623,9 @@ public class HttpClientUtils {
    
 
 3. ![image-20240423214804225](images/image-20240423214804225.png)
+
+
+
+场景：用户认证
+
+用户将信息进行上传，然后由管理员进行审核
