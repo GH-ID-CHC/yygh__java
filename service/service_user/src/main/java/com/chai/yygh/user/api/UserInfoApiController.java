@@ -1,4 +1,4 @@
-package com.chai.yygh.user.controller;
+package com.chai.yygh.user.api;
 
 import com.chai.yygh.common.result.Result;
 import com.chai.yygh.common.util.AuthContextHolder;
