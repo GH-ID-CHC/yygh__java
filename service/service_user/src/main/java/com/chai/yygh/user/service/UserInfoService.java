@@ -40,4 +40,18 @@ public interface UserInfoService extends IService<UserInfo> {
      * @param status 0：锁定 1：正常
      */
     void lock(Long userId, Integer status);
+
+    /**
+     * 详情
+     * @param userId
+     * @return
+     */
+    Map<String, Object> show(Long userId);
+
+    /**
+     * 认证审批
+     * @param userId
+     * @param authStatus 2：通过 -1：不通过
+     */
+    void approval(Long userId, Integer authStatus);
 }

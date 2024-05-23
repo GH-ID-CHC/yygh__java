@@ -8,8 +8,10 @@ import com.chai.yygh.common.exception.YyghException;
 import com.chai.yygh.common.helper.JwtHelper;
 import com.chai.yygh.common.result.ResultCodeEnum;
 import com.chai.yygh.enums.AuthStatusEnum;
+import com.chai.yygh.model.user.Patient;
 import com.chai.yygh.model.user.UserInfo;
 import com.chai.yygh.user.mapper.UserInfoMapper;
+import com.chai.yygh.user.service.PatientService;
 import com.chai.yygh.user.service.UserInfoService;
 import com.chai.yygh.vo.user.LoginVo;
 import com.chai.yygh.vo.user.UserAuthVo;
@@ -22,6 +24,7 @@ import org.springframework.util.StringUtils;
 import javax.management.Query;
 import javax.xml.ws.spi.WebServiceFeatureAnnotation;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +40,9 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
     @Autowired
     private RedisTemplate<String,String> redisTemplate;
+
+    @Autowired
+    private PatientService patientService;
 
     @Override
     public Map<String, Object> login(LoginVo loginVo) {
@@ -171,6 +177,27 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             UserInfo userInfo = this.getById(userId);
             userInfo.setStatus(status);
             this.updateById(userInfo);
+        }
+    }
+    //用户详情
+    @Override
+    public Map<String, Object> show(Long userId) {
+        Map<String,Object> map = new HashMap<>();
+        //根据userid查询用户信息
+        UserInfo userInfo = this.packageUserInfo(baseMapper.selectById(userId));
+        map.put("userInfo",userInfo);
+        //根据userid查询就诊人信息
+        List<Patient> patientList = patientService.findAllUserId(userId);
+        map.put("patientList",patientList);
+        return map;
+    }
+    //认证审批  2通过  -1不通过
+    @Override
+    public void approval(Long userId, Integer authStatus) {
+        if(authStatus.intValue()==2 || authStatus.intValue()==-1) {
+            UserInfo userInfo = baseMapper.selectById(userId);
+            userInfo.setAuthStatus(authStatus);
+            baseMapper.updateById(userInfo);
         }
     }
 }
