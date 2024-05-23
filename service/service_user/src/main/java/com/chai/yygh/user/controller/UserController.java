@@ -6,6 +6,7 @@ import com.chai.yygh.common.result.Result;
 import com.chai.yygh.model.user.UserInfo;
 import com.chai.yygh.user.service.UserInfoService;
 import com.chai.yygh.vo.user.UserInfoQueryVo;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,4 +35,14 @@ public class UserController {
                 userInfoService.selectPage(pageParam,userInfoQueryVo);
         return Result.ok(pageModel);
     }
+
+    @ApiOperation(value = "锁定")
+    @GetMapping("lock/{userId}/{status}")
+    public Result lock(
+            @PathVariable("userId") Long userId,
+            @PathVariable("status") Integer status){
+        userInfoService.lock(userId, status);
+        return Result.ok();
+    }
+
 }
