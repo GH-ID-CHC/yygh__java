@@ -93,4 +93,11 @@ public class HospitalApiController {
             @PathVariable String workDate) {
         return Result.ok(scheduleService.getDetailSchedule(hoscode, depcode, workDate));
     }
+    @ApiOperation(value = "根据排班id获取排班数据")
+    @GetMapping("getSchedule/{scheduleId}")
+    public Result getSchedule(
+            @ApiParam(name = "scheduleId", value = "排班id", required = true)
+            @PathVariable String scheduleId) {
+        return Result.ok(scheduleService.getById(scheduleId));
+    }
 }

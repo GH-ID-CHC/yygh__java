@@ -265,6 +265,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         result.put("baseMap", baseMap);
         return result;
     }
+
+    @Override
+    public Schedule getById(String id) {
+        Schedule schedule = scheduleRepository.findById(id).get();
+        return this.packageSchedule(schedule);
+    }
+
     /**
      * 获取可预约日期分页数据
      */
@@ -304,12 +311,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         return dateTime;
     }
 
-    private void packageSchedule(Schedule schedule) {
+    private Schedule packageSchedule(Schedule schedule) {
         schedule.getParam().put("hosname",hospitalService.getHospName(schedule.getHoscode()));
         //设置科室名称
         schedule.getParam().put("depname",departmentService.getDepName(schedule.getHoscode(),schedule.getDepcode()));
         //设置日期对应星期
         schedule.getParam().put("dayOfWeek",this.getDayOfWeek(new DateTime(schedule.getWorkDate())));
+        return schedule;
     }
 
     /**
