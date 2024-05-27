@@ -41,4 +41,9 @@ public interface DepartmentService {
      * @return {@link Object}
      */
     String getDepName(String hoscode, String depcode);
+
+    /**
+     * 获取部门
+     */
+    Department getDepartment(String hoscode, String depcode);
 }
